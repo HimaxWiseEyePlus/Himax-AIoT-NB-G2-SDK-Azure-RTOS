@@ -120,7 +120,7 @@ more information please reference the file:
     - Change [azure_active_event]  value  in void tflitemicro_start() at Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_tflm-master\app\scenario_app\hx_aiot_nb\hx_aiot_nb.c  
      - azure_active_event = ALGO_EVENT_SEND_IMAGE_TO_CLOUD;
 
-## Send Algorithm Metadara and Image
+## Send Algorithm Metadata and Image
     - Change [azure_active_event]  value  in void tflitemicro_start() at Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_tflm-master\app\scenario_app\hx_aiot_nb\hx_aiot_nb.c  
      - azure_active_event = ALGO_EVENT_SEND_RESULT_AND_IMAGE;
 
