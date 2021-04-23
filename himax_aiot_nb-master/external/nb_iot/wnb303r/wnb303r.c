@@ -11,10 +11,12 @@
 #include "stdio.h"
 #include "string.h"
 #include "stdarg.h"
-
-#define DBG_MORE
 #include "embARC_debug.h"
 #include "tx_api.h"
+
+#define DBG_MORE
+#define UART_READ_CNT 15	// tx_thread_sleep(9000) * 15 : about 7.14s , Note: tx_thread_sleep(9000):514ms
+
 
 /**
 * WNB303R driver initial
@@ -63,16 +65,24 @@ int32_t wnb303r_drv_deinit(unsigned char uart_id){
 * WNB303R read
 *
 * @param dev_uart_com:the dev_uart_comm is serial port object
-* @param rev_buf     :
-* @param len         :
+* @param recv_buf     :data buffer
+* @param recv_len     :data length
 *
 * Return Value:
 * AT_OK, 	 success
 * AT_ERROR,  fail
 */
-int32_t wnb303r_drv_read(DEV_UART_PTR dev_uart_com, char *rev_buf, uint32_t len)
+int32_t wnb303r_drv_read(DEV_UART_PTR dev_uart_comm, char *recv_buf, uint32_t recv_len)
 {
-	//TBD
+
+	int ret = 0;
+	ret = dev_uart_comm->uart_read(recv_buf,recv_len);;
+//	if(0 > ret)
+//	{
+//		xprintf("uart read fail.\n");
+//		return AT_ERROR;
+//	}
+	return ret;//AT_OK;
 }
 
 /**
@@ -201,39 +211,53 @@ int32_t wnb303r_drv_sw_reset(DEV_UART_PTR dev_uart_comm, AT_STRING parameter)
 	return AT_OK;
 }
 
-
 /**
 * Query the device IP address
 *
 * @param dev_uart_comm  :the dev_uart_comm is serial port object
+* @param recv_buf     	:data buffer
+* @param recv_len     	:data length
 
 * AT+IPCONFIG
-*
-* +IPCONFIG: fe80:0:0:0:e518:5891:50d1:19d6
-* +IPCONFIG: 2001:b400:e23e:5b16:e518:5891:50d1:19d6
-* +IPCONFIG: 10.193.167.134
-* +IPCONFIG: 127.0.0.1
 *
 * Return Value:
 * AT_OK, 	 success
 * AT_ERROR,  fail
 */
-int32_t wnb303r_query_ip(DEV_UART_PTR dev_uart_comm)
+int32_t wnb303r_query_ip(DEV_UART_PTR dev_uart_comm,char *recv_buf, uint32_t recv_len)
 {
+	uint8_t uart_read_cnt = 0;
 	//AT+IPCONFIG
 	if(0 > wnb303r_drv_write_at_cmd(dev_uart_comm, AT_EXECUTE, "IPCONFIG", NULL))
 	{
 		return AT_ERROR;
 	}
 
+	// get at reply
+	while(1){
+		uart_read_cnt++;
+		wnb303r_drv_read(dev_uart_comm,recv_buf,recv_len);
+		xprintf("[Search IP...]\n");
+		//xprintf("[Search IP]\nrecv_len:%d %s\n",strlen(recv_buf),recv_buf);
+		if(strstr(recv_buf,"+IP:")){
+			break;
+		}
+		if(uart_read_cnt == UART_READ_CNT){
+			xprintf("uart_read timeout.\n");
+			return UART_READ_TIMEOUT;
+		}
+		tx_thread_sleep(10000);
+	}//while
+
 	return AT_OK;
 }
-
 
 /**
 * Query current time
 *
 * @param dev_uart_comm  :the dev_uart_comm is serial port object
+* @param recv_buf     	:data buffer
+* @param recv_len     	:data length
 
 * AT+CCLK?
 *
@@ -243,13 +267,30 @@ int32_t wnb303r_query_ip(DEV_UART_PTR dev_uart_comm)
 * AT_OK, 	 success
 * AT_ERROR,  fail
 */
-int32_t wnb303r_query_time(DEV_UART_PTR dev_uart_comm)
+int32_t wnb303r_query_time(DEV_UART_PTR dev_uart_comm, char *recv_buf, uint32_t recv_len)
 {
+	uint8_t uart_read_cnt = 0;
+
 	//AT+CCLK?
 	if(0 > wnb303r_drv_write_at_cmd(dev_uart_comm, AT_READ, "CCLK", NULL))
 	{
 		return AT_ERROR;
 	}
+
+	// get at reply
+	while(1){
+		uart_read_cnt++;
+		wnb303r_drv_read(dev_uart_comm,recv_buf,recv_len);
+		//xprintf("[NetWorkTime]\nrecv_len:%d %s\n",strlen(recv_buf),recv_buf);
+		if(strstr(recv_buf,"+CCLK:")){
+			break;
+		}
+		if(uart_read_cnt == UART_READ_CNT){
+			xprintf("uart_read timeout.\n");
+			return UART_READ_TIMEOUT;
+		}
+		tx_thread_sleep(9000);
+	}//while
 
 	return AT_OK;
 }
@@ -262,7 +303,9 @@ int32_t wnb303r_query_time(DEV_UART_PTR dev_uart_comm)
 * @param cer_flag       :MQTT certification's flag
 * @param cer_totalsize  :MQTT certification's total size
 * @param cer_currentsize:MQTT certification's size within the current command
-* @param cer_raw_data   :MQTT certification ¡¦s raw data , must be HEX string
+* @param cer_raw_data   :MQTT certification's raw data , must be HEX string
+* @param recv_buf     	:data buffer
+* @param recv_len     	:data length
 *
 * AT+EMQCERT
 *
@@ -271,17 +314,30 @@ int32_t wnb303r_query_time(DEV_UART_PTR dev_uart_comm)
 * AT_ERROR,  fail
 */
 //int32_t wnb303r_MQTT_certification(DEV_UART_PTR dev_uart_comm, AT_STRING cer_type, AT_STRING cer_flag, AT_STRING cer_totalsize, AT_STRING cer_currentsize, AT_STRING cer_raw_data)
-int32_t wnb303r_MQTT_certification(DEV_UART_PTR dev_uart_comm, AT_STRING cer_type, AT_STRING cer_flag, AT_STRING cer_totalsize, AT_STRING cer_currentsize)
+int32_t wnb303r_MQTT_certification(DEV_UART_PTR dev_uart_comm, AT_STRING cer_type, AT_STRING cer_flag, AT_STRING cer_totalsize, AT_STRING cer_currentsize,char *recv_buf, uint32_t recv_len)
 {
-
+	uint8_t uart_read_cnt = 0;
 	//AT+EMQCERT
-	//if(0 > wnb303r_drv_write_at_cmd(dev_uart_comm, AT_WRITE,"EMQCERT",cer_type,cer_flag,cer_totalsize, \
-									cer_currentsize,cer_raw_data, NULL))
 	if(0 > wnb303r_drv_write_at_cmd(dev_uart_comm, AT_WRITE,"EMQCERT",cer_type,cer_flag,cer_totalsize, \
 										cer_currentsize,NULL))
 	{
 		return AT_ERROR;
 	}
+
+	// get at reply
+	while(1){
+		uart_read_cnt++;
+		wnb303r_drv_read(dev_uart_comm,recv_buf,recv_len);
+		//xprintf("[NBIOT Certification]\nrecv_len:%d %s\n",strlen(recv_buf),recv_buf);
+		if(strstr(recv_buf,AT_OK_STR)){
+			break;
+		}
+		if(uart_read_cnt == UART_READ_CNT){
+			xprintf("uart_read timeout.\n");
+			return UART_READ_TIMEOUT;
+		}
+		tx_thread_sleep(9000);
+	}//while
 
 	return AT_OK;
 }
@@ -289,11 +345,13 @@ int32_t wnb303r_MQTT_certification(DEV_UART_PTR dev_uart_comm, AT_STRING cer_typ
 /**
 * creating MQTT connection with server over TCP
 *
-* @param dev_uart_comm     :the dev_uart_comm is serial port object
-* @param remote_ip 	       :MQTT server IP address
-* @param remote_port       :MQTT server port
-* @param command_timeout_ms:AT command timeout (ms)
-* @param rw_buf_size       :Send buffer and read buffer size
+* @param dev_uart_comm     	:the dev_uart_comm is serial port object
+* @param remote_ip 	       	:MQTT server IP address
+* @param remote_port       	:MQTT server port
+* @param command_timeout_ms	:AT command timeout (ms)
+* @param rw_buf_size       	:Send buffer and read buffer size
+* @param recv_buf     		:data buffer
+* @param recv_len     		:data length
 *
 * AT+EMQNEW
 *
@@ -301,8 +359,9 @@ int32_t wnb303r_MQTT_certification(DEV_UART_PTR dev_uart_comm, AT_STRING cer_typ
 * AT_OK, 	 success
 * AT_ERROR,  fail
 */
-int32_t wnb303r_MQTT_create(DEV_UART_PTR dev_uart_comm, AT_STRING remote_ip, AT_STRING remote_port, AT_STRING command_timeout_ms, AT_STRING rw_buf_size)
+int32_t wnb303r_MQTT_connect_server(DEV_UART_PTR dev_uart_comm, AT_STRING remote_ip, AT_STRING remote_port, AT_STRING command_timeout_ms, AT_STRING rw_buf_size,char *recv_buf, uint32_t recv_len)
 {
+	uint8_t uart_read_cnt = 0;
 	//AT+EMQNEW
 	if( 0 > wnb303r_drv_write_at_cmd(dev_uart_comm, AT_WRITE,"EMQNEW",remote_ip,remote_port,\
 			command_timeout_ms,rw_buf_size,NULL))
@@ -310,22 +369,41 @@ int32_t wnb303r_MQTT_create(DEV_UART_PTR dev_uart_comm, AT_STRING remote_ip, AT_
 		return AT_ERROR;
 	}
 
+	// get at reply
+	while(1){
+		uart_read_cnt++;
+		wnb303r_drv_read(dev_uart_comm,recv_buf,recv_len);
+		xprintf("[NBIOT Connect to Server...]\n");
+		//xprintf("[NBIOT Connect Server]\nrecv_len:%d %s\n",strlen(recv_buf),recv_buf);
+		if(strstr(recv_buf,"+EMQNEW:")){
+			break;
+		}
+
+		if(uart_read_cnt == UART_READ_CNT){
+			xprintf("uart_read timeout.\n");
+			return UART_READ_TIMEOUT;
+		}
+		tx_thread_sleep(10000);
+	}//while
+
 	return AT_OK;
 }
 
 /**
 * MQTT connection packet
 *
-* @param dev_uart_comm     :the dev_uart_comm is serial port object
-* @param mqtt_id 	       :mqtt_id from AT+EMQNEW¡¦s response
-* @param version           :MQTT version, can be 3 or 4
-* @param client_id		   :client ID, would be unique
+* @param dev_uart_comm     	:the dev_uart_comm is serial port object
+* @param mqtt_id 	       	:mqtt_id from AT+EMQNEW¡¦s response
+* @param version           	:MQTT version, can be 3 or 4
+* @param client_id		   	:client ID, would be unique
 * @param keepalive_interval:keep alive interval, means ping interval
 * Suggest that query your cooperation platform about the recommended settings as the value of keepalive_interval
-* @param cleansession      :clean session, can be 0 or 1.
-* @param will_flag		   :will flag, can be 0 or 1. (when nbiot exception disconnect, server will send Last Will and Testament to topic)
-* @param user_name 		   :user name (option)
-* @param password		   :password (option)
+* @param cleansession      	:clean session, can be 0 or 1.
+* @param will_flag		   	:will flag, can be 0 or 1. (when nbiot exception disconnect, server will send Last Will and Testament to topic)
+* @param user_name 		   	:user name (option)
+* @param password		   	:password (option)
+* @param recv_buf     		:data buffer
+* @param recv_len     		:data length
 *
 *AT+EMQCON
 *
@@ -333,28 +411,33 @@ int32_t wnb303r_MQTT_create(DEV_UART_PTR dev_uart_comm, AT_STRING remote_ip, AT_
 * AT_OK, 	 success
 * AT_ERROR,  fail
 */
-int32_t wnb303r_MQTT_send_connect_packet(DEV_UART_PTR dev_uart_comm, AT_STRING mqtt_id, AT_STRING version, AT_STRING client_id, AT_STRING keepalive_interval, \
-					AT_STRING cleansession, AT_STRING will_flag, AT_STRING user_name, AT_STRING	password)
+int32_t wnb303r_MQTT_connect_dps_iothub(DEV_UART_PTR dev_uart_comm, AT_STRING mqtt_id, AT_STRING version, AT_STRING client_id, AT_STRING keepalive_interval, \
+					AT_STRING cleansession, AT_STRING will_flag, AT_STRING user_name, AT_STRING	password,char *recv_buf, uint32_t recv_len)
 {
+
+	uint8_t uart_read_cnt = 0;
+
 	if( 0 > wnb303r_drv_write_at_cmd(dev_uart_comm, AT_WRITE,"EMQCON",mqtt_id,version,client_id, \
 	keepalive_interval,cleansession,will_flag, user_name, password, NULL)){
 		return AT_ERROR;
 	}
 
-//	if(user_name !="" & password!="")
-//	{
-//		if( 0 > wnb303r_drv_write_at_cmd(dev_uart_comm, AT_WRITE,"EMQCON",mqtt_id,version,client_id, \
-//		keepalive_interval,cleansession,will_flag, user_name, password, NULL)){
-//			return AT_ERROR;
-//		}
-//	}
-//	else{
-//		//AT+EMQCON
-//		if( 0 > wnb303r_drv_write_at_cmd(dev_uart_comm, AT_WRITE,"EMQCON",mqtt_id,version,client_id, \
-//				keepalive_interval,cleansession,will_flag,NULL)){
-//			return AT_ERROR;
-//		}
-//	}
+	// get at reply
+	while(1){
+		uart_read_cnt++;
+		wnb303r_drv_read(dev_uart_comm,recv_buf,recv_len);
+		xprintf("[NBIOT Connect to DPS_IOTHUB...]\n");
+		//xprintf("[NBIOT Connect DPS_IOTHUB]\nrecv_len:%d %s\n",strlen(recv_buf),recv_buf);
+		if(strstr(recv_buf,AT_OK_STR)){
+			break;
+		}
+
+		if(uart_read_cnt == UART_READ_CNT){
+			xprintf("uart_read timeout.\n");
+			return UART_READ_TIMEOUT;
+		}
+		tx_thread_sleep(10000);
+	}//while
 
 	return AT_OK;
 }
@@ -369,25 +452,46 @@ int32_t wnb303r_MQTT_send_connect_packet(DEV_UART_PTR dev_uart_comm, AT_STRING m
 * 	level 0¡Gat most once
 	level 1¡Gat last once
 	level 2¡Gexactly once
+* @param recv_buf     :data buffer
+* @param recv_len     :data length
 * AT+EMQSUB
 *
 * Return Value:
 * AT_OK, 	 success
 * AT_ERROR,  fail
 */
-int32_t wnb303r_MQTT_send_subscribe_packet(DEV_UART_PTR dev_uart_comm, AT_STRING mqtt_id, AT_STRING topic, AT_STRING qos)
+int32_t wnb303r_MQTT_send_subscribe_topic(DEV_UART_PTR dev_uart_comm, AT_STRING mqtt_id, AT_STRING topic, AT_STRING qos,char *recv_buf, uint32_t recv_len)
 {
+
+	uint8_t uart_read_cnt = 0;
+
 	//AT+EMQSUB
 	if( 0 > wnb303r_drv_write_at_cmd(dev_uart_comm, AT_WRITE,"EMQSUB",mqtt_id,topic,qos,NULL))
 	{
 		return AT_ERROR;
 	}
 
+	// get at reply
+	while(1){
+		uart_read_cnt++;
+		wnb303r_drv_read(dev_uart_comm,recv_buf,recv_len);
+		//xprintf("[NBIOT DPS Subscribe Topic]\nrecv_len:%d %s\n",strlen(recv_buf),recv_buf);
+		if(strstr(recv_buf,AT_OK_STR)){
+			break;
+		}
+
+		if(uart_read_cnt == UART_READ_CNT){
+			xprintf("uart_read timeout.\n");
+			return UART_READ_TIMEOUT;
+		}
+		tx_thread_sleep(9000);
+	}//while
+
 	return AT_OK;
 }
 
 /**
-* MQTT publish packet
+* MQTT publish packet for DPS and IOTHUB
 *
 * @param dev_uart_comm:the dev_uart_comm is serial port object
 * @param mqtt_id 	  :mqtt_id from AT+EMQNEW¡¦s response
@@ -400,6 +504,8 @@ int32_t wnb303r_MQTT_send_subscribe_packet(DEV_UART_PTR dev_uart_comm, AT_STRING
 * @param retain_flag2 :retained flag, fix 0
 * @param msg_len  ¡@¡@:length of publish message
 * @param msg		  :publish message
+* @param recv_buf     :data buffer
+* @param recv_len     :data length
 *
 * AT+EMQPUB
 *
@@ -407,14 +513,51 @@ int32_t wnb303r_MQTT_send_subscribe_packet(DEV_UART_PTR dev_uart_comm, AT_STRING
 * AT_OK, 	 success
 * AT_ERROR,  fail
 */
-int32_t wnb303r_MQTT_send_publish_packet(DEV_UART_PTR dev_uart_comm, AT_STRING mqtt_id, AT_STRING topic, AT_STRING qos, AT_STRING retain_flag, AT_STRING retain_flag2, AT_STRING msg_len, AT_STRING msg)
+int32_t wnb303r_MQTT_publish_topic(DEV_UART_PTR dev_uart_comm, AT_STRING mqtt_id, AT_STRING topic, AT_STRING qos, AT_STRING retain_flag, AT_STRING retain_flag2, \
+		AT_STRING msg_len, AT_STRING msg, char *recv_buf, uint32_t recv_len,uint8_t topic_type)
 {
+	uint8_t uart_read_cnt = 0;
+
 	//AT+EMQPUB
 	if( 0 > wnb303r_drv_write_at_cmd(dev_uart_comm, AT_WRITE,"EMQPUB",mqtt_id,topic,qos, \
 			retain_flag, retain_flag2, msg_len,msg,NULL))
 	{
 		return AT_ERROR;
 	}
+
+	if(topic_type == PUBLISH_TOPIC_DPS_IOTHUB){
+		xprintf("[NBIOT DPS_IOTHUB Packet...]\n");
+	}else{
+		/* PUBLISH_TOPIC_SEND_DATA */
+		xprintf("[NBIOT SEND DATA Packet...]\n");
+	}
+	// get at reply
+	while(1){
+		uart_read_cnt++;
+		wnb303r_drv_read(dev_uart_comm,recv_buf,recv_len);
+		//xprintf("[NBIOT DPS Publish Topic]\nrecv_len:%d %s\n",strlen(recv_buf),recv_buf);
+		if(topic_type == PUBLISH_TOPIC_DPS_IOTHUB){
+
+			//xprintf("[NBIOT DPS_IOTHUB Publish Topic]\nrecv_len:%d %s\n",strlen(recv_buf),recv_buf);
+			if(strstr(recv_buf,"+EMQPUB:")){
+				break;
+			}
+		}else{
+			/* PUBLISH_TOPIC_SEND_DATA */
+			//xprintf("[NBIOT Send Data Publish Topic]\nrecv_len:%d %s\n",strlen(recv_buf),recv_buf);
+			if(strstr(recv_buf,AT_OK_STR)){
+				break;
+			}else if(strstr(recv_buf,AT_ERROR_STR)){
+				return AT_ERROR;
+			}
+		}
+
+		if(uart_read_cnt == UART_READ_CNT){
+			xprintf("uart_read timeout.\n");
+			return UART_READ_TIMEOUT;
+		}
+		tx_thread_sleep(9000);
+	}//while
 
 	return AT_OK;
 }
@@ -424,6 +567,8 @@ int32_t wnb303r_MQTT_send_publish_packet(DEV_UART_PTR dev_uart_comm, AT_STRING m
 *
 * @param dev_uart_comm:the dev_uart_comm is serial port object
 * @param mqtt_id 	  :mqtt_id from AT+EMQNEW¡¦s response
+* @param recv_buf     :data buffer
+* @param recv_len     :data length
 *
 * AT+EMQDISCON
 *
@@ -431,13 +576,33 @@ int32_t wnb303r_MQTT_send_publish_packet(DEV_UART_PTR dev_uart_comm, AT_STRING m
 * AT_OK, 	 success
 * AT_ERROR,  fail
 */
-int32_t wnb303r_MQTT_disconnect(DEV_UART_PTR dev_uart_comm,AT_STRING mqtt_id)
+int32_t wnb303r_MQTT_disconnect(DEV_UART_PTR dev_uart_comm,AT_STRING mqtt_id,char *recv_buf, uint32_t recv_len)
 {
+	uint8_t uart_read_cnt = 0;
 	//AT+EMQDISCON
 	if( 0 > wnb303r_drv_write_at_cmd(dev_uart_comm, AT_WRITE,"EMQDISCON",mqtt_id,NULL))
 	{
 		return AT_ERROR;
 	}
+
+	// get at reply
+	while(1){
+		uart_read_cnt++;
+		wnb303r_drv_read(dev_uart_comm,recv_buf,recv_len);
+		xprintf("[NBIOT DPS MQTT Disconnect...]\n");
+		//xprintf("[NBIOT DPS MQTT Disconnect]\nrecv_len:%d %s\n",strlen(recv_buf),recv_buf);
+		if(strstr(recv_buf,AT_OK_STR)){
+			break;
+		}else if(strstr(recv_buf,AT_ERROR_STR)){
+			break;
+		}
+
+		if(uart_read_cnt == UART_READ_CNT){
+			xprintf("uart_read timeout.\n");
+			return UART_READ_TIMEOUT;
+		}
+		tx_thread_sleep(9000);
+	}//while
 
 	return AT_OK;
 }

@@ -59,8 +59,12 @@ NETXDUO_LIB = $(OUT_DIR)/libnetxduo.a
 $(NETXDUO_LIB): $(LIB_NETXDUO_OBJS)
 	$(TRACE_ARCHIVE)
 	$(Q)$(AR) $(AR_OPT) $@ $(LIB_NETXDUO_OBJS)
+ifeq ($(TOOLCHAIN), mw)	
+	$(CP) $(BOARD_OUT_DIR)\$(BUILD_INFO)\libnetxduo.a .\library\netxduo\prebuilt_lib\libnetxduo.a	
+endif	
+ifeq ($(TOOLCHAIN), gnu)
 	$(CP) $(BOARD_OUT_DIR)/$(BUILD_INFO)/libnetxduo.a ./library/netxduo/prebuilt_lib/libnetxduo.a	
-
+endif	
 	
 
 # specific compile rules

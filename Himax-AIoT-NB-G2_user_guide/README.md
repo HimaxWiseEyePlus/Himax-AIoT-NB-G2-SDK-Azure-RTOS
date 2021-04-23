@@ -15,11 +15,12 @@ HIMAX WE1 AIOT Platform includes Himax WE-I Plus MCU, image sensor and rich peri
     - [Flash Image Update](#flash-image-update)
     - [Check UART message output](#check-uart-message-output)
   - [Connect to Azure IoT Hub](#connect-to-azure-iot-hub)
-    - [Connect Azure Device Provisioning Service and IoTHub device](#connect-azure-device-provisioning-service-and-iothub-device)
+    - [Connect Azure Device Provisioning Service and IoTHub device](#connect-azure-device-provisioning-serviStartupce-and-iothub-device)
   - [Send Algorithm Metadata](#send-algorithm-metadata)
   - [Send Image](#send-image)
+  - [Send Alogrithm Metadata and Image](#send-algorithm-matadata-and-image)
   - [Enter Power Saving Mode](#enter-power-saving-mode)
-  - [Azure RTOS Startup](#azure-rtos- startup)
+  - [Azure RTOS Startup](#azure-rtos-startup)
   - [TensorFlow Lite for Microcontroller example](#tensorflow-lite-for-microcontroller-example)
     - [TFLM Model Path](#tflm-model-path)
     - [TFLM Example Person Detection INT8](#tflm-example-person-detection-int8)
@@ -94,7 +95,7 @@ HIMAX WE1 AIOT Platform includes Himax WE-I Plus MCU, image sensor and rich peri
 
 ##  Connect to Azure IoT Hub
 ### Connect Azure Device Provisioning Service and IoTHub device
-    - Define as follows value  in Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_tflm-master\library\az_sphere\inc\azure_sphere.h 
+    - Define as follows value  in Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_aiot_nb-master\app\scenario_app\hx_aiot_nb\inc\azure_iothub.h 
       - #define AZURE_DPS_IOTHUB_STANDALONE_TEST 1
       - #define ENDPOINT                        "global.azure-devices-provisioning.net"
       - #define HOST_NAME                       "Key-in your HOST_NAME" 
@@ -112,15 +113,19 @@ more information please reference the file:
      - upper_body_bbox.y : bounding box y-axis for detected human. 
      - upper_body_bbox.width : bounding box width for detected human.
      - upper_body_bbox.height : bounding box height for detected human.
-    - Change [azure_active_event]  value  in void tflitemicro_start at Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_tflm-master\app\scenario_app\hx_aiot_nb.c  
+    - Change [azure_active_event]  value  in void tflitemicro_start() at Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_tflm-master\app\scenario_app\hx_aiot_nb\hx_aiot_nb.c  
      - azure_active_event = ALGO_EVENT_SEND_RESULT_TO_CLOUD;
      
 ## Send Image
-    - Change [azure_active_event]  value  in void tflitemicro_start at Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_tflm-master\app\scenario_app\hx_aiot_nb.c  
+    - Change [azure_active_event]  value  in void tflitemicro_start() at Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_tflm-master\app\scenario_app\hx_aiot_nb\hx_aiot_nb.c  
      - azure_active_event = ALGO_EVENT_SEND_IMAGE_TO_CLOUD;
-     
+
+## Send Algorithm Metadara and Image
+    - Change [azure_active_event]  value  in void tflitemicro_start() at Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_tflm-master\app\scenario_app\hx_aiot_nb\hx_aiot_nb.c  
+     - azure_active_event = ALGO_EVENT_SEND_RESULT_AND_IMAGE;
+
 ## Enter Power Saving Mode
-    - #define ENABLE_PMU in Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_tflm-master\app\scenario_app\hx_aiot_nb.c 
+    - #define ENABLE_PMU in Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_tflm-master\app\scenario_app\hx_aiot_nb\azure_iothub.c 
 
 ## Azure RTOS Startup
   - More detail information please reference [here](https://github.com/azure-rtos)

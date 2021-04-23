@@ -157,12 +157,6 @@ LIB_NETXDUO_PREBUILT = 1
 ##
 OS_TX_PREBUILT = 1 
 
-# USING Pre-built AZ_SPHERE library
-# 1 for enable
-# other for disable
-##
-LIB_AZ_SPHERE_PREBUILT = 1
-
 # Flag for pure board initial(no peripheral initial)
 # 1 for enable
 # other for disable

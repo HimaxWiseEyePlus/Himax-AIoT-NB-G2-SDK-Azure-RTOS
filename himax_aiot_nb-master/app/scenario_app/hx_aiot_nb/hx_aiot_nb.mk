@@ -1,6 +1,7 @@
 override SCENARIO_APP_SUPPORT_LIST := $(APP_TYPE)
 override OS_SEL := tx
 override OS_TYPE := TX
+APPL_DEFINES += -DHX_AIOT_NB
 override ALGO_TYPE = TFLITE_MICRO_GOOGLE_PERSON
 LIB_SEL +=  sensordp audio tflm_sdk_lib pwrmgmt
 
@@ -13,11 +14,11 @@ else #default algo
 override ALGO_TYPE := DATA_BSS_SRAM
 endif
 
-$(warning "HEllo")
+$(warning "hx_aiot_nb")
 
-#---------- Azure Sphere ------------
-$(warning "AZURE_SPHERE")
-LIB_SEL += az_sdk netxduo az_sphere
+#---------- Azure IoTHub ------------
+$(warning "AZURE_IOTHUB")
+LIB_SEL += az_sdk netxduo
 APPL_DEFINES += -DNB_IOT_BOARD
 APPL_DEFINES += -D__Xdmac
 

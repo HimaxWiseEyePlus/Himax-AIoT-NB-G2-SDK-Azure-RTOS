@@ -47,7 +47,6 @@ AZ_SDK_LIB = $(BOARD_OUT_DIR)/$(BUILD_INFO)/libaz_sdk.a
 AZ_SDK_PREBUILT_LIB = ./library/az_sdk/prebuilt_lib/libaz_sdk.a
 endif
 
-
 $(AZ_SDK_LIB) :
 	$(CP) $(AZ_SDK_PREBUILT_LIB) $(AZ_SDK_LIB)
 
@@ -65,7 +64,12 @@ AZ_SDK_LIB = $(OUT_DIR)/libaz_sdk.a
 $(AZ_SDK_LIB): $(LIB_AZ_SDK_OBJS)
 	$(TRACE_ARCHIVE)
 	$(Q)$(AR) $(AR_OPT) $@ $(LIB_AZ_SDK_OBJS)
+ifeq ($(TOOLCHAIN), mw)	
+	$(CP) $(BOARD_OUT_DIR)\$(BUILD_INFO)\libaz_sdk.a .\library\az_sdk\prebuilt_lib\libaz_sdk.a
+endif	
+ifeq ($(TOOLCHAIN), gnu)
 	$(CP) $(BOARD_OUT_DIR)/$(BUILD_INFO)/libaz_sdk.a ./library/az_sdk/prebuilt_lib/libaz_sdk.a
+endif	
 $(warning ****build LIB_LIB_AZ_SDK lib $(AZ_SDK_LIB) $(Q)$(AR) $(AR_OPT)) 
  
 # specific compile rules

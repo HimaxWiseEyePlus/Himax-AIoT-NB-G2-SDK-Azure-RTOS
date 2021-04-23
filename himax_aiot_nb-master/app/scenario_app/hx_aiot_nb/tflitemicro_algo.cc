@@ -25,7 +25,7 @@
 #include <library/cv/tflitemicro_24/tensorflow/lite/schema/schema_generated.h>
 #include <library/cv/tflitemicro_24/tensorflow/lite/version.h>
 #endif
-#include <hx_aiot_nb/tflitemicro_algo.h>
+#include "inc/tflitemicro_algo.h"
 
 
 #ifdef TFLITE_MICRO_GOOGLE_PERSON
@@ -188,8 +188,8 @@ extern "C" int tflitemicro_algo_run(uint32_t image_addr, uint32_t image_width, u
 	error_reporter->Report(
 	       "person score: %d, no person score: %d\n", person_score,
 	       no_person_score);
-	xprintf("person score: %d, no person score: %d\n", person_score,
-		       no_person_score);
+//	xprintf("person score: %d, no person score: %d\n", person_score,
+//		       no_person_score);
 #else
 	error_reporter->Report(
 	       "score: %d\n", person_score);
