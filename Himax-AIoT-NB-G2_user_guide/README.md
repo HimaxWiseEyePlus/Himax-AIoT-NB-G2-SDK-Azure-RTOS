@@ -85,11 +85,11 @@ HIMAX WE1 AIOT Platform includes Himax WE-I Plus MCU, image sensor and rich peri
   - Debug board SW1 pin 1 switch to ON, pin 2 keep ON
     - NB-IoT board
     
-    ![alt text](images/Himax_NB-IoT_board_sw2.png)
+    ![alt text](images/Himax_NB-IOT_board_sw2.png)
     
     - Debug board
     
-    ![alt text](images/Himax_Debug_board_sw2.png)
+    ![alt text](images/Himax_Debug_Board_sw2.png)
 
 ### Check UART message output    
   - Serial terminal emulation application Setting 
