@@ -98,10 +98,8 @@ void tflitemicro_start() {
 	 * ALGO_EVENT_SEND_IMAGE_TO_CLOUD  :Send Image.
 	 * ALGO_EVENT_SEND_RESULT_AND_IMAGE:Send Metadata and Image.
 	 *
-	 * Example:Send Metadata After Capture 5 image.
 	 * */
-	//if(algo_result.humanPresence){
-	if(img_cnt == 5){// example
+	if(algo_result.humanPresence){
 		azure_active_event = ALGO_EVENT_SEND_RESULT_TO_CLOUD;
 		img_cnt= 0;
 	}

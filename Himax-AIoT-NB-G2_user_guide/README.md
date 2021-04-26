@@ -18,7 +18,7 @@ HIMAX WE1 AIOT Platform includes Himax WE-I Plus MCU, image sensor and rich peri
     - [Connect Azure Device Provisioning Service and IoTHub device](#connect-azure-device-provisioning-serviStartupce-and-iothub-device)
   - [Send Algorithm Metadata](#send-algorithm-metadata)
   - [Send Image](#send-image)
-  - [Send Alogrithm Metadata and Image](#send-algorithm-matadata-and-image)
+  - [Send Algorithm Metadata and Image](#send-algorithm-metadata-and-image)
   - [Enter Power Saving Mode](#enter-power-saving-mode)
   - [Azure RTOS Startup](#azure-rtos-startup)
   - [TensorFlow Lite for Microcontroller example](#tensorflow-lite-for-microcontroller-example)
@@ -31,7 +31,7 @@ HIMAX WE1 AIOT Platform includes Himax WE-I Plus MCU, image sensor and rich peri
 ![alt text](images/himax_nbiot_evb.png)
 
   1.	Himax WE-I Plus chip
-  2.    Himax Debug Board
+  2.  Himax Debug Board
   3.	HM0360 AoS<sup>TM</sup> VGA camera
   4.	Reset Button
   5.	3-Axis Accelerometer
@@ -79,7 +79,18 @@ HIMAX WE1 AIOT Platform includes Himax WE-I Plus MCU, image sensor and rich peri
       - Step 5: Programming data
       
     ![alt text](images/Himax_Gui_tool_dowload.png) 
-       
+    
+### After Flash Image Update
+  - NB-IoT board SW1 pin switch to OFF
+  - Debug board SW1 pin 1 switch to ON, pin 2 keep ON
+    - NB-IoT board
+    
+    ![alt text](images/Himax_NB-IoT_board_sw2.png)
+    
+    - Debug board
+    
+    ![alt text](images/Himax_Debug_board_sw2.png)
+
 ### Check UART message output    
   - Serial terminal emulation application Setting 
 
@@ -95,7 +106,7 @@ HIMAX WE1 AIOT Platform includes Himax WE-I Plus MCU, image sensor and rich peri
 
 ##  Connect to Azure IoT Hub
 ### Connect Azure Device Provisioning Service and IoTHub device
-    - Define as follows value  in Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_aiot_nb-master\app\scenario_app\hx_aiot_nb\inc\azure_iothub.h 
+    - Define as follows value in Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_aiot_nb-master\app\scenario_app\hx_aiot_nb\inc\azure_iothub.h 
       - #define AZURE_DPS_IOTHUB_STANDALONE_TEST 1
       - #define ENDPOINT                        "global.azure-devices-provisioning.net"
       - #define HOST_NAME                       "Key-in your HOST_NAME" 
@@ -117,11 +128,11 @@ more information please reference the file:
      - azure_active_event = ALGO_EVENT_SEND_RESULT_TO_CLOUD;
      
 ## Send Image
-    - Change [azure_active_event]  value  in void tflitemicro_start() at Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_tflm-master\app\scenario_app\hx_aiot_nb\hx_aiot_nb.c  
+    - Change [azure_active_event] value in void tflitemicro_start() at Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_tflm-master\app\scenario_app\hx_aiot_nb\hx_aiot_nb.c  
      - azure_active_event = ALGO_EVENT_SEND_IMAGE_TO_CLOUD;
 
 ## Send Algorithm Metadata and Image
-    - Change [azure_active_event]  value  in void tflitemicro_start() at Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_tflm-master\app\scenario_app\hx_aiot_nb\hx_aiot_nb.c  
+    - Change [azure_active_event] value in void tflitemicro_start() at Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_tflm-master\app\scenario_app\hx_aiot_nb\hx_aiot_nb.c  
      - azure_active_event = ALGO_EVENT_SEND_RESULT_AND_IMAGE;
 
 ## Enter Power Saving Mode
@@ -139,6 +150,6 @@ more information please reference the file:
 
   To generate person detection example flash binary for Himax AIoT Platform EVB:
   1. Based on the flow of [person detection example](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/lite/micro/examples/person_detection_experimental#person-detection-example) to generate flash image. 
-  2. Download image binary to HIMAX WE1 EVB, detail steps can be found at [flash image update](#flash-image-update).
+  2. Download image binary to Himax-AIoT-NB-G2 EVB, detail steps can be found at [flash image update](#flash-image-update).
   3. Person detection example message will be shown on the terminal application. 
  
