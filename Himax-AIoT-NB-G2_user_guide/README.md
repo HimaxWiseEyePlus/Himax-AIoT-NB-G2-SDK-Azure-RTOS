@@ -139,6 +139,13 @@ Himax-AIoT-NB-G2 Platform EVB includes Himax WE-I Plus MCU, image sensor and ric
     
     ![alt text](images/Himax-AIoT-NB-G2_TeraTerm_tflitemicro_run_log.png)
 
+  You can use the [Azure IoTHub Explorer](https://docs.microsoft.com/en-us/azure/iot-pnp/howto-use-iot-explorer) tool to see your metadata. 
+  As following image is simple demonstrate. 
+  Note: model id:`dtmi:himax:himax_aiot_nb_g2;2`
+  
+  ![alt text](images/Himax-AIoT-NB-G2_Azure_IoT_Explorer_RecvData.png)
+
+
 ## Firmware Read Back Backup Flow
 In this chapter, you can know how to firmware image read back backup flow.
 - Before Power ON EVB
