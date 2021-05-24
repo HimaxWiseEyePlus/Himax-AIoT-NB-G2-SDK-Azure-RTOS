@@ -48,11 +48,13 @@ Default building toolchain in makefile is Metaware Development toolkit, if you a
 ARC_TOOLCHAIN ?= gnu
 ```
 
-Build person detection INT8 example and flash image, flash image name will be `WEI_FW_gnu_arcem9d_wei_r16.img`
+Before Build person detection INT8 example and flash image, you need to Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\image_gen_linux directory
 ```
-make clean
-make
-make flash 
+chmod 777 *
+```
+Build person detection INT8 example and flash image. The resulted flash image will be named `WEI_FW_gnu_arcem9d_wei_r16.img` and saved under `Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_aiot_nb-master\obj_socket_24\gnu_arcem9d_wei_r16`by default.
+```
+make clean && make && make flash 
 ```
 `flash image path:Himax-AIoT-NB-G2-SDK-Azure-RTOS-main\himax_aiot_nb-master\obj_socket_24\gnu_arcem9d_wei_r16`
 
