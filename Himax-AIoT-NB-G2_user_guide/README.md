@@ -11,10 +11,10 @@ Himax-AIoT-NB-G2 Platform EVB includes Himax WE-I Plus MCU, image sensor and ric
   - [Software Tools](#software-tools)
 - [Himax-AIoT-NB-G2 Platform EVB Startup](#himax-aiot-nb-g2-platform-evb-startup)
   - [Startup Flowchart](#startup-flowchart) 
-  - [Power ON EVB](#1.-power-on-evb) 
-  - [Flash Image Update](#2.-flash-image-update)
-  - [After Flash Image Update](#3.-after-flash-image-update)
-  - [Check UART Message Output](#4.-check-uart-message-output)
+  - [Power ON EVB](#power-on-evb) 
+  - [Flash Image Update](#flash-image-update)
+  - [After Flash Image Update](#after-flash-image-update)
+  - [Check UART Message Output](#check-uart-message-output)
 - [Firmware Read Back Backup Flow](#firmware-read-back-backup-flow)
 - [Connect to Azure IoT Hub](#connect-to-azure-iot-hub)
   - [Connect Azure Device Provisioning Service and IoTHub Device](#connect-azure-device-provisioning-service-and-iothub-device)
@@ -64,11 +64,11 @@ Himax-AIoT-NB-G2 Platform EVB includes Himax WE-I Plus MCU, image sensor and ric
     
   ![alt text](images/Himax-AIoT-NB-G2_platform_startup_flowchart.png)
 
-### 1. Power ON EVB
+### Power ON EVB
     
 ![alt text](images/himax_nbiot_evb_debug.png) 
 
-### 2. Flash Image Update
+### Flash Image Update
   - Before Power ON EVB
     - Step 1: NB-IoT board SW pin switch to ON
     - Step 2: Debug board SW pin 1 switch to OFF, pin 2 keep ON
@@ -92,7 +92,7 @@ Himax-AIoT-NB-G2 Platform EVB includes Himax WE-I Plus MCU, image sensor and ric
       
     ![alt text](images/Himax_Gui_tool_dowload.png) 
     
-### 3. After Flash Image Update
+### After Flash Image Update
   - NB-IoT board SW pin switch to OFF
   - Debug board SW pin 1 switch to ON, pin 2 keep ON
     - NB-IoT Board
@@ -103,7 +103,7 @@ Himax-AIoT-NB-G2 Platform EVB includes Himax WE-I Plus MCU, image sensor and ric
     
     ![alt text](images/Himax_Debug_Board_sw2.png)
 
-### 4. Check UART Message Output    
+### Check UART Message Output    
   - Serial Terminal Emulation Application Setting 
 
 |   |  |
