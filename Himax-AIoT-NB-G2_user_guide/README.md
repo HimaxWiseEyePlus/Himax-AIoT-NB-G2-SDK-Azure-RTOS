@@ -45,7 +45,7 @@ Himax-AIoT-NB-G2 Platform EVB includes Himax WE-I Plus MCU, image sensor and ric
   9.	GREEN LED x2 and RED LEDx1 and BLUE LEDx1  
   10.	Micro USB cable: Debug Board (I2C/SPI/Flash Download)
 
-  <a href="docs/H010_HX6539_NB-IoT_WNB303R_V10.pdf" target="_blank">Board Schematic PDF</a>
+  <a href="docs/HX6539-A_HWUG(NB-IoT)_preliminary_v01_20210412.pdf" target="_blank">Hardware User Guide PDF</a>
 
 ## System Requirement
   - Hardware Environment Setup
